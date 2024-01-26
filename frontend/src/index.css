@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  /*background-color: #20417E;*/
+  width: 100vw;
+  height: 100vh;
+  background-image: url("./assets/backgoundPage.png");
+  background-position: center;
+  top: 0;
+  left: 0;
+}
+
+.side-icons {
+  font-size: 2em;
+}
+
+.chat-icons, .react-icons, .dm-icons {
+  font-size: 1.5em;
+}
+
+@media (max-width: 768px) {
+  .react-icons {
+    font-size: 1.5em;
+  }
+}

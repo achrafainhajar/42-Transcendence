@@ -1,0 +1,47 @@
+# Use the official Node.js image as the base image
+FROM node:lts as build
+
+# Set working directory
+WORKDIR /app
+ARG IP_HOST
+ARG FRONTPORT
+
+# Copy package.json and package-lock.json
+COPY package*.json ./
+
+# Install dependencies
+RUN npm install --legacy-peer-deps
+
+# Copy app source code
+COPY . .
+
+#ARG IP_HOST="10.30.238.148"
+#ARG FRONTPORT=5173
+
+RUN sed -i "s/localhost/$IP_HOST/g" ./src/constants.ts
+# Build the React app
+RUN npm run build
+
+# Use NGINX as the base image for serving
+FROM nginx:latest
+ARG IP_HOST
+ARG FRONTPORT
+# Copy the built React app files to NGINX's default public directory
+COPY --from=build /app/dist /usr/share/nginx/html
+
+# Create a custom NGINX configuration
+#RUN echo "starting ${IP_HOST} and ${FRONTPORT}" > /with.txt
+#RUN echo "starting $IP_HOST and $FRONTPORT" > /without.txt
+
+#CMD [ "sleep","infinity" ]
+
+RUN echo "server {\
+	listen $FRONTPORT;\
+	location / {\
+	root /usr/share/nginx/html;\
+	try_files \$uri \$uri/ /index.html;\
+	}\
+	}" > /etc/nginx/conf.d/default.conf
+
+# Start NGINX
+CMD ["nginx", "-g", "daemon off;"]
